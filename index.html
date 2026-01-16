@@ -49,10 +49,12 @@
             const [activeTab, setActiveTab] = useState('home');
             const [currentVod, setCurrentVod] = useState(CONFIG.vodIds[0]);
 
+            // Optimierter Parent-Fix gegen Inhaltsklassifizierungs-Fehler
             const parentParams = useMemo(() => {
                 const hostname = window.location.hostname;
-                const hosts = [hostname, 'peroonic-png.github.io', 'localhost'];
-                return [...new Set(hosts.filter(h => h))].map(h => `&parent=${h}`).join('');
+                if (!hostname || hostname === "localhost") return "&parent=localhost";
+                // Twitch erlaubt nur die nackte Domain, keine Pfade
+                return `&parent=${hostname}`;
             }, []);
 
             const pickRandomVod = () => {
@@ -106,16 +108,23 @@
 
                         {activeTab === 'live' && (
                             <div className="space-y-4">
-                                <h2 className="flex items-center gap-2 font-black text-red-500 uppercase italic tracking-tighter text-xl">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></div> Twitch Live
+                                <h2 className="flex items-center gap-2 font-black text-white uppercase italic tracking-tighter text-xl">
+                                    Villore
                                 </h2>
                                 <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
                                     <iframe 
                                         src={`https://player.twitch.tv/?channel=${CONFIG.channelName}&autoplay=true&muted=false${parentParams}`} 
                                         className="absolute inset-0 w-full h-full" 
-                                        allow="autoplay; fullscreen"
+                                        allow="autoplay; fullscreen; encrypted-media"
+                                        referrerpolicy="no-referrer-when-downgrade"
                                         allowFullScreen>
                                     </iframe>
+                                </div>
+                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
+                                    <div className="flex items-center justify-center gap-2 text-xs text-red-500 font-bold uppercase tracking-widest">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div>
+                                        Stream-Status via Twitch
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -132,12 +141,13 @@
                                     <iframe 
                                         src={`https://player.twitch.tv/?video=${currentVod}&autoplay=true&muted=true${parentParams}`} 
                                         className="absolute inset-0 w-full h-full" 
-                                        allow="autoplay; fullscreen"
+                                        allow="autoplay; fullscreen; encrypted-media"
+                                        referrerpolicy="no-referrer-when-downgrade"
                                         allowFullScreen>
                                     </iframe>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
-                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest italic">Tipp: Falls das Video nicht lädt, klicke auf "Zufällig" oder starte die Seite neu.</p>
+                                    <p className="text-xs text-gray-400 font-medium italic">Video-ID: {currentVod}</p>
                                 </div>
                             </div>
                         )}
@@ -157,6 +167,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
