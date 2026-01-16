@@ -49,16 +49,9 @@
             const [activeTab, setActiveTab] = useState('home');
             const [currentVod, setCurrentVod] = useState(CONFIG.vodIds[0]);
 
-            // Twitch Parent Fix: Hier werden alle Varianten abgedeckt
             const parentParams = useMemo(() => {
                 const hostname = window.location.hostname;
-                const hosts = [
-                    hostname, 
-                    'peroonic-png.github.io', // Deine spezifische Domain
-                    'localhost'
-                ];
-                
-                // Entferne leere Hostnames und Duplikate, dann baue den String
+                const hosts = [hostname, 'peroonic-png.github.io', 'localhost'];
                 return [...new Set(hosts.filter(h => h))].map(h => `&parent=${h}`).join('');
             }, []);
 
@@ -70,7 +63,6 @@
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* Header Nav */}
                     <nav className="fixed top-0 left-0 w-full z-50 bg-[#121216]/95 backdrop-blur-lg border-b border-white/5">
                         <div className="max-w-md mx-auto flex justify-around p-3">
                             <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 p-2 transition-all ${activeTab === 'home' ? 'text-purple-400 scale-110' : 'text-gray-500'}`}>
@@ -114,20 +106,16 @@
 
                         {activeTab === 'live' && (
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h2 className="flex items-center gap-2 font-black text-red-500 uppercase italic tracking-tighter text-xl">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></div> Twitch Live
-                                    </h2>
-                                </div>
+                                <h2 className="flex items-center gap-2 font-black text-red-500 uppercase italic tracking-tighter text-xl">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></div> Twitch Live
+                                </h2>
                                 <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
                                     <iframe 
                                         src={`https://player.twitch.tv/?channel=${CONFIG.channelName}&autoplay=true&muted=false${parentParams}`} 
                                         className="absolute inset-0 w-full h-full" 
+                                        allow="autoplay; fullscreen"
                                         allowFullScreen>
                                     </iframe>
-                                </div>
-                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
-                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Villoree wird live gestreamt</p>
                                 </div>
                             </div>
                         )}
@@ -142,13 +130,14 @@
                                 </div>
                                 <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
                                     <iframe 
-                                        src={`https://player.twitch.tv/?video=${currentVod}&autoplay=true${parentParams}`} 
+                                        src={`https://player.twitch.tv/?video=${currentVod}&autoplay=true&muted=true${parentParams}`} 
                                         className="absolute inset-0 w-full h-full" 
+                                        allow="autoplay; fullscreen"
                                         allowFullScreen>
                                     </iframe>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
-                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Wiedergabe von VOD: {currentVod}</p>
+                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest italic">Tipp: Falls das Video nicht lädt, klicke auf "Zufällig" oder starte die Seite neu.</p>
                                 </div>
                             </div>
                         )}
@@ -168,4 +157,6 @@
     </script>
 </body>
 </html>
+
+
 
