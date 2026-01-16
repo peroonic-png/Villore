@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villore Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0d0d0f; color: white; margin: 0; overflow-x: hidden; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        iframe { background-color: #000; border: none; }
+    </style>
+</head>
+<body class="selection:bg-purple-500/30">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const CONFIG = {
+            channelName: "villoree",
+            displayName: "Villore",
+            bio: "Ich denke, es wird Vi-lor ausgesprochen",
+            links: [
+                { name: "Twitch", url: "https://www.twitch.tv/villoree", icon: "radio", color: "bg-[#9146FF]" },
+                { name: "YouTube", url: "https://www.youtube.com/channel/UCdygVN1zJil3I4zQLC95v-Q", icon: "youtube", color: "bg-[#FF0000]" },
+                { name: "Discord", url: "https://discord.com/invite/Yu4kAYAhwb", icon: "message-circle", color: "bg-[#5865F2]" },
+                { name: "Instagram", url: "https://www.instagram.com/villoreee/", icon: "instagram", color: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]" },
+                { name: "TikTok", url: "https://www.tiktok.com/@villoreee", icon: "video", color: "bg-black" },
+                { name: "X (Twitter)", url: "https://x.com/Villoree", icon: "twitter", color: "bg-[#1DA1F2]" }
+            ],
+            vodIds: ["2284951034", "2275910293", "2265910482"] 
+        };
+
+        const Icon = ({ name, size = 20, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('home');
+            const [currentVod, setCurrentVod] = useState(CONFIG.vodIds[0]);
+
+            // Twitch Parent Fix: Hier werden alle Varianten abgedeckt
+            const parentParams = useMemo(() => {
+                const hostname = window.location.hostname;
+                const hosts = [
+                    hostname, 
+                    'peroonic-png.github.io', // Deine spezifische Domain
+                    'localhost'
+                ];
+                
+                // Entferne leere Hostnames und Duplikate, dann baue den String
+                return [...new Set(hosts.filter(h => h))].map(h => `&parent=${h}`).join('');
+            }, []);
+
+            const pickRandomVod = () => {
+                const filtered = CONFIG.vodIds.filter(id => id !== currentVod);
+                const randomIndex = Math.floor(Math.random() * filtered.length);
+                setCurrentVod(filtered[randomIndex]);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header Nav */}
+                    <nav className="fixed top-0 left-0 w-full z-50 bg-[#121216]/95 backdrop-blur-lg border-b border-white/5">
+                        <div className="max-w-md mx-auto flex justify-around p-3">
+                            <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 p-2 transition-all ${activeTab === 'home' ? 'text-purple-400 scale-110' : 'text-gray-500'}`}>
+                                <Icon name="home" />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">Home</span>
+                            </button>
+                            <button onClick={() => setActiveTab('live')} className={`flex flex-col items-center gap-1 p-2 transition-all ${activeTab === 'live' ? 'text-red-500 scale-110' : 'text-gray-500'}`}>
+                                <Icon name="radio" className={activeTab === 'live' ? 'animate-pulse' : ''} />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">Live</span>
+                            </button>
+                            <button onClick={() => setActiveTab('vods')} className={`flex flex-col items-center gap-1 p-2 transition-all ${activeTab === 'vods' ? 'text-purple-400 scale-110' : 'text-gray-500'}`}>
+                                <Icon name="play" />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">Archiv</span>
+                            </button>
+                        </div>
+                    </nav>
+
+                    <main className="flex-1 pt-24 pb-32 px-4 max-w-xl mx-auto w-full fade-in">
+                        {activeTab === 'home' && (
+                            <div className="text-center">
+                                <div className="mb-6 relative inline-block">
+                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-4xl font-black italic shadow-[0_0_30px_rgba(147,51,234,0.3)]">V</div>
+                                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-[#0d0d0f] rounded-full"></div>
+                                </div>
+                                <h1 className="text-2xl font-black mb-2 uppercase tracking-tighter">@{CONFIG.displayName}</h1>
+                                <p className="text-gray-400 text-sm mb-8 bg-white/5 p-4 rounded-2xl border border-white/10 italic">"{CONFIG.bio}"</p>
+                                
+                                <div className="grid gap-3">
+                                    {CONFIG.links.map((link, i) => (
+                                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-between p-4 rounded-2xl ${link.color} hover:brightness-110 active:scale-[0.98] transition-all shadow-lg`}>
+                                            <div className="flex items-center gap-4">
+                                                <span className="bg-black/20 p-2.5 rounded-xl"><Icon name={link.icon} size={22} /></span>
+                                                <span className="font-bold text-lg">{link.name}</span>
+                                            </div>
+                                            <Icon name="chevron-right" className="opacity-40" />
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'live' && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="flex items-center gap-2 font-black text-red-500 uppercase italic tracking-tighter text-xl">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></div> Twitch Live
+                                    </h2>
+                                </div>
+                                <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                                    <iframe 
+                                        src={`https://player.twitch.tv/?channel=${CONFIG.channelName}&autoplay=true&muted=false${parentParams}`} 
+                                        className="absolute inset-0 w-full h-full" 
+                                        allowFullScreen>
+                                    </iframe>
+                                </div>
+                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
+                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Villoree wird live gestreamt</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'vods' && (
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <h2 className="font-black text-purple-400 uppercase italic flex items-center gap-2 tracking-tighter text-xl">
+                                        <Icon name="play-circle" size={24} /> Video Archiv
+                                    </h2>
+                                    <button onClick={pickRandomVod} className="text-[10px] font-black bg-white/10 px-4 py-2 rounded-full border border-white/10 hover:bg-white/20 transition-all uppercase">Zufällig</button>
+                                </div>
+                                <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                                    <iframe 
+                                        src={`https://player.twitch.tv/?video=${currentVod}&autoplay=true${parentParams}`} 
+                                        className="absolute inset-0 w-full h-full" 
+                                        allowFullScreen>
+                                    </iframe>
+                                </div>
+                                <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
+                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Wiedergabe von VOD: {currentVod}</p>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    <footer className="fixed bottom-6 left-0 w-full flex justify-center pointer-events-none px-4">
+                        <div className="bg-[#121216]/80 backdrop-blur-md px-6 py-2.5 rounded-full border border-white/5 text-[9px] font-black text-gray-500 tracking-[0.4em] shadow-2xl">
+                            VILLORE HUB &bull; 2025
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
